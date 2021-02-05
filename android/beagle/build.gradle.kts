@@ -126,7 +126,7 @@ apply {
 
 tasks.register<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHugo") {
     dependencies {
-        plugins("de.cotech:dokka-hugo-plugin:2.0")
+        plugins("com.github.cotechde:dokka-hugo-plugin:2.0")
     }
     pluginConfiguration<org.jetbrains.dokka.hugo.HugoPlugin, org.jetbrains.dokka.hugo.HugoConfiguration> {
         titleReplace = hashMapOf("br.com.zup.beagle.android." to "", "br.com.zup.beagle." to "", "." to " ")
