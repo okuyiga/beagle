@@ -81,8 +81,7 @@ object TextInputScreenBuilder {
                         textInputWritingTexts("writing text",
                             "writing text with expression", TextInputType.TEXT),
                         textInputTypeNumber(),
-                        textInputActions(),
-                        textInputHidden()
+                        textInputActions()
                     )
                 ).applyStyle(Style(
                     size = Size(height = 100.0.unitPercent()),
@@ -219,21 +218,6 @@ object TextInputScreenBuilder {
                 onBlur = listOf(
                     SetContext(contextId = "textInputActions", path = "blur", value = "DidOnBlur"))
             )
-        )
-    )
-
-    private fun textInputHidden() = Container(
-        context = ContextData(
-            id = "isHiddenWithExpression",
-            value = TextInputHidden(placeholder = "this text is hidden with expression",
-                hidden = true)
-        ),
-        children = listOf(
-            TextInput(value = "this text is hidden", hidden = true),
-            TextInput(value = expressionOf("@{isHiddenWithExpression.placeholder}"),
-                hidden = expressionOf("@{isHiddenWithExpression.hidden}")
-            ),
-            Text("There are two hidden input fields above")
         )
     )
 }
