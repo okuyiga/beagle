@@ -1,6 +1,5 @@
-// Generated using Sourcery 1.0.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 1.3.0 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
-
 /*
 * Copyright 2020 ZUP IT SERVICOS EM TECNOLOGIA E INOVACAO SA
 *
@@ -422,6 +421,7 @@ extension TextInput {
         case value
         case placeholder
         case disabled
+        case enabled
         case readOnly
         case type
         case hidden
@@ -431,7 +431,6 @@ extension TextInput {
         case onFocus
         case error
         case showError
-        case enabled
     }
 
     public init(from decoder: Decoder) throws {
