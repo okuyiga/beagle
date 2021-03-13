@@ -28,3 +28,15 @@ private func baseSettings() -> SettingsDictionary {
         "SWIFT_VERSION": "5.3"
     ]
 }
+
+
+extension TargetAction {
+
+    public static func sourcery() -> TargetAction {
+        .pre(path: "CodeGeneration/sourceryScript.sh", arguments: [], name: "Sourcery")
+    }
+
+    public static func swiftLint() -> TargetAction {
+        .post(tool: "swiftlint", arguments: [], name: "SwiftLint")
+    }
+}

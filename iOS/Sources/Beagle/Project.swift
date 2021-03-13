@@ -1,4 +1,3 @@
-
 import ProjectDescriptionHelpers
 import ProjectDescription
 
@@ -15,6 +14,9 @@ let project = Project(
     targets: [
         mainTarget(),
         testTarget()
+    ],
+    additionalFiles: [
+        "**/__Snapshots__/**/*.png"
     ]
 )
 
@@ -31,9 +33,13 @@ private func mainTarget() -> Target {
                 "\(sources)/**/Test/**/*.swift",
                 "\(sources)/**/Tests/**/*.swift",
                 "\(sources)/**/*Test*.swift"
-            ]),
+            ])
         ]),
         resources: ["CodeGeneration/Templates/*"],
+        actions: [
+            .sourcery(),
+            .swiftLint()
+        ],
         dependencies: [
             .framework(path: .relativeToRoot("Libraries/YogaKit.framework"))
         ]
@@ -55,7 +61,7 @@ private func testTarget() -> Target {
             "\(sources)/**/Tests/**/*.swift",
             "\(sources)/**/*Test*.swift"
         ],
-        resources: [
+        resources: .init(resources: [
             "../../../common/tests/UrlBuilderTestSpec.json",
             "\(sources)/**/Test/**/*.json",
             "\(sources)/**/Tests/**/*.json",
@@ -63,6 +69,9 @@ private func testTarget() -> Target {
             "\(sources)/**/Test/**/*.xcassets",
             "\(sources)/**/Tests/**/*.xcassets",
             "\(sources)/**/*Test*.xcassets"
+        ]),
+        actions: [
+            .swiftLint()
         ],
         dependencies: [
             .target(name: "Beagle"),

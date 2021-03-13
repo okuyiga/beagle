@@ -2,7 +2,7 @@ import ProjectDescriptionHelpers
 import ProjectDescription
 
 let workspace = Workspace(
-    name: "BeagleSDK",
+    name: "BeagleWorkspace",
     projects: [
         "Sources/Beagle"
     ],
