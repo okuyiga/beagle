@@ -10,7 +10,6 @@ let project = Project(
     packages: [
         .remote(url: "https://github.com/pointfreeco/swift-snapshot-testing", requirement: .exact("1.7.2"))
     ],
-    settings: .standard(),
     targets: [
         mainTarget(),
         testTarget()
@@ -41,8 +40,10 @@ private func mainTarget() -> Target {
             .swiftLint()
         ],
         dependencies: [
-            .framework(path: .relativeToRoot("Libraries/YogaKit.framework"))
-        ]
+            .xcFramework(path: "../../Libraries/YogaKit.xcframework"),
+//            .project(target: "YogaKit", path: "../../Libraries/YogaKit"),
+        ],
+        settings: .standard()
     )
 }
 
@@ -75,7 +76,8 @@ private func testTarget() -> Target {
         ],
         dependencies: [
             .target(name: "Beagle"),
-            .framework(path: .relativeToRoot("Libraries/YogaKit.framework")),
+            .xcFramework(path: "../../Libraries/YogaKit.xcframework"),
+//            .project(target: "YogaKit", path: "../../Libraries/YogaKit"),
             .package(product: "SnapshotTesting")
         ],
         settings: .test()

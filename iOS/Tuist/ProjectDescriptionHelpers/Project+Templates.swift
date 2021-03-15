@@ -9,23 +9,25 @@ public func bundleId(_ name: String) -> String {
 }
 
 extension Settings {
-    public static func standard() -> Settings {
+    public static func standard(with additional: SettingsDictionary? = nil) -> Settings {
         Settings(base: baseSettings().merging([
-            "IPHONEOS_DEPLOYMENT_TARGET": "10.0"
-        ]))
+            "IPHONEOS_DEPLOYMENT_TARGET": "10.0",
+            "BUILD_LIBRARY_FOR_DISTRIBUTION": "YES"
+        ]).merging(additional ?? [:]))
     }
 
-    public static func test() -> Settings {
+    public static func test(with additional: SettingsDictionary? = nil) -> Settings {
         Settings(base: baseSettings().merging([
             "IPHONEOS_DEPLOYMENT_TARGET": "11.0"
-        ]))
+        ]).merging(additional ?? [:]))
     }
 }
 
 private func baseSettings() -> SettingsDictionary {
     [
         "SDKROOT": "iphoneos",
-        "SWIFT_VERSION": "5.3"
+        "SWIFT_VERSION": "5.3",
+        "SUPPORTS_MACCATALYST": "NO"
     ]
 }
 
