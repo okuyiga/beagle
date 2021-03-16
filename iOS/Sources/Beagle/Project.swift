@@ -37,11 +37,10 @@ private func mainTarget() -> Target {
         resources: ["CodeGeneration/Templates/*"],
         actions: [
             .sourcery(),
-            .swiftLint()
+//            .swiftLint()
         ],
         dependencies: [
-            .xcFramework(path: "../../Libraries/YogaKit.xcframework"),
-//            .project(target: "YogaKit", path: "../../Libraries/YogaKit"),
+            .project(target: "YogaKit", path: "../../Libraries/YogaKit"),
         ],
         settings: .standard()
     )
@@ -72,12 +71,11 @@ private func testTarget() -> Target {
             "\(sources)/**/*Test*.xcassets"
         ]),
         actions: [
-            .swiftLint()
+//             .swiftLint()
         ],
         dependencies: [
             .target(name: "Beagle"),
-            .xcFramework(path: "../../Libraries/YogaKit.xcframework"),
-//            .project(target: "YogaKit", path: "../../Libraries/YogaKit"),
+            .project(target: "YogaKit", path: "../../Libraries/YogaKit"),
             .package(product: "SnapshotTesting")
         ],
         settings: .test()

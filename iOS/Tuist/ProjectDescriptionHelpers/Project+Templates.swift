@@ -27,7 +27,8 @@ private func baseSettings() -> SettingsDictionary {
     [
         "SDKROOT": "iphoneos",
         "SWIFT_VERSION": "5.3",
-        "SUPPORTS_MACCATALYST": "NO"
+        "SUPPORTS_MACCATALYST": "NO",
+        "TARGETED_DEVICE_FAMILY": "1,2"
     ]
 }
 

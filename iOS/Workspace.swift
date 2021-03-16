@@ -5,7 +5,7 @@ let workspace = Workspace(
     name: "BeagleWorkspace",
     projects: [
         "Sources/Beagle",
-//        "Libraries/YogaKit"
+        "Libraries/YogaKit"
     ],
     schemes: []
 )

@@ -1,5 +1,6 @@
 import ProjectDescription
 
 let config = Config(
-  generationOptions: []
+    cache: .cache(profiles: [Cache.Profile.profile(name: "Default", configuration: "Release")]),
+    generationOptions: [.enableCodeCoverage]
 )
