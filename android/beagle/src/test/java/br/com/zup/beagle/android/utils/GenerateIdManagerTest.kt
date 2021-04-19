@@ -17,40 +17,39 @@
 package br.com.zup.beagle.android.utils
 
 import android.view.View
+import br.com.zup.beagle.android.BaseTest
 import br.com.zup.beagle.android.components.Text
 import br.com.zup.beagle.android.components.layout.Container
-import br.com.zup.beagle.android.view.custom.BeagleFlexView
+import br.com.zup.beagle.android.view.custom.InternalBeagleFlexView
 import br.com.zup.beagle.android.view.viewmodel.GenerateIdViewModel
 import br.com.zup.beagle.android.view.viewmodel.ListViewIdViewModel
 import br.com.zup.beagle.android.view.viewmodel.OnInitViewModel
-import br.com.zup.beagle.android.widget.RootView
 import br.com.zup.beagle.core.ServerDrivenComponent
 import br.com.zup.beagle.ext.setId
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import io.mockk.verify
 import org.junit.Assert.assertEquals
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 @DisplayName("Given a GenerateIdManager")
-class GenerateIdManagerTest {
+class GenerateIdManagerTest: BaseTest() {
 
-    private val rootView = mockk<RootView>(relaxed = true)
     private val generateIdViewModel = mockk<GenerateIdViewModel>(relaxed = true)
     private val listViewIdViewModel = mockk<ListViewIdViewModel>(relaxed = true)
     private val onInitViewModel = mockk<OnInitViewModel>(relaxed = true)
-    private val view = mockk<BeagleFlexView>()
+    private val view = mockk<InternalBeagleFlexView>()
     private val generatedId = 1
     private lateinit var generateIdManager: GenerateIdManager
 
     @BeforeEach
-    fun setUp() {
+    override fun setUp() {
+        super.setUp()
+
         mockkStatic(View::class)
         every { View.generateViewId() } returns generatedId
         every { rootView.generateViewModelInstance<GenerateIdViewModel>() } returns generateIdViewModel
@@ -58,11 +57,6 @@ class GenerateIdManagerTest {
         every { rootView.generateViewModelInstance<OnInitViewModel>() } returns onInitViewModel
 
         generateIdManager = GenerateIdManager(rootView, generateIdViewModel, listViewIdViewModel, onInitViewModel)
-    }
-
-    @AfterEach
-    fun tearDown() {
-        unmockkStatic(View::class)
     }
 
     @DisplayName("When createSingleManagerByRootViewId is called")

@@ -231,8 +231,26 @@ fun makeNavigationActionJsonWithUrlHardcoded() = """
       "_beagleAction_": "beagle:pushView",
       "route": {
         "url": "http://localhost:8080/test/example",
-        "shouldPrefetch": false
+        "shouldPrefetch": false,
+        "httpAdditionalData": {
+               "method": "POST",
+               "body": "test",
+               "headers": {
+                    "test": "test"
+               }
+        }
       }
+    }
+"""
+
+fun makeActionWithAnalyticsNull() = """
+    {
+      "_beagleAction_": "beagle:pushView",
+      "route": {
+        "url": "http://localhost:8080/test/example",
+        "shouldPrefetch": false
+      },
+      "analytics": null
     }
 """
 
@@ -437,3 +455,7 @@ fun makeContextWithNumber(number: Number) = """
         "value": $number
     }
 """
+
+fun makeActionAnalyticsPropertiesWithAttribute() = """{"attributes":["attributes"]}"""
+fun makeActionAnalyticsPropertiesWithAdditionalEntries() = """{"additionalEntries":{"attributes":"test"}}"""
+fun makeActionAnalyticsPropertiesWithAttributesAndAdditionalEntries() = """{"attributes":["attributes"],"additionalEntries":{"attributes":"test"}}"""

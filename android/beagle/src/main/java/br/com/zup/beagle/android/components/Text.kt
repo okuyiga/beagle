@@ -19,11 +19,11 @@ package br.com.zup.beagle.android.components
 import android.view.Gravity
 import android.view.View
 import android.widget.TextView
-import br.com.zup.beagle.android.components.utils.styleManagerFactory
 import br.com.zup.beagle.android.context.Bind
 import br.com.zup.beagle.android.context.expressionOrValueOf
 import br.com.zup.beagle.android.context.expressionOrValueOfNullable
 import br.com.zup.beagle.android.context.valueOfNullable
+import br.com.zup.beagle.android.utils.StyleManager
 import br.com.zup.beagle.android.utils.observeBindChanges
 import br.com.zup.beagle.android.utils.toAndroidColor
 import br.com.zup.beagle.android.view.ViewFactory
@@ -43,19 +43,19 @@ import br.com.zup.beagle.widget.core.TextAlignment
  * @param alignment defines the text content alignment inside the text view.
  *
  */
-@RegisterWidget
+@RegisterWidget("text")
 data class Text(
     val text: Bind<String>,
     val styleId: String? = null,
     val textColor: Bind<String>? = null,
-    val alignment: Bind<TextAlignment>? = null
+    val alignment: Bind<TextAlignment>? = null,
 ) : WidgetView() {
 
     constructor(
         text: String,
         styleId: String? = null,
         textColor: String? = null,
-        alignment: TextAlignment? = null
+        alignment: TextAlignment? = null,
     ) : this(
         expressionOrValueOf(text),
         styleId,
@@ -66,8 +66,15 @@ data class Text(
     @Transient
     private val viewFactory = ViewFactory()
 
+    @Transient
+    private val styleManager: StyleManager = StyleManager()
+
+
     override fun buildView(rootView: RootView): View {
-        val textView = viewFactory.makeTextView(rootView.getContext(), styleManagerFactory.getTextStyle(styleId))
+        val textStyle = styleManager.getTextStyle(styleId)
+
+        val textView = if (textStyle == 0) viewFactory.makeTextView(rootView.getContext())
+        else viewFactory.makeTextView(rootView.getContext(), textStyle)
 
         textView.setTextWidget(this, rootView)
         return textView

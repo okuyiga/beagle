@@ -49,8 +49,8 @@ class HookManager {
         if (scenario.isFailed) {
             try {
                 val scrFile: File = (SuiteSetup.getDriver() as TakesScreenshot).getScreenshotAs(OutputType.FILE)
-                val destFile: File =
-                    File("${SuiteSetup.ERROR_SCREENSHOTS_FOLDER}/ERROR-${scenario.name}-${System.currentTimeMillis()}.png")
+                val scenarioName = scenario.name.replace("[^A-Za-z0-9]".toRegex()," ")
+                val destFile = File("${SuiteSetup.ERROR_SCREENSHOTS_FOLDER}/ERROR-${scenarioName}-${System.currentTimeMillis()}.png")
 
                 if (destFile.exists())
                     destFile.delete()
@@ -62,8 +62,13 @@ class HookManager {
             } catch (exception: Exception) {
                 println("ERROR taking a screenshot on error: ${exception.message}")
             }
+
+            // Always restarts after a test failure because the failure might be caused by a random app crash
+            SuiteSetup.restartApp()
         }
 
-        SuiteSetup.restartApp()
+        // Android tests by default won't restart app anymore because they now use deep links to load bff screens
+        if (SuiteSetup.isIos())
+          SuiteSetup.restartApp()
     }
 }

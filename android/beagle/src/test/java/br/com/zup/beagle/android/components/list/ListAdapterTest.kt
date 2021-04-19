@@ -49,7 +49,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-
 @RunWith(AndroidJUnit4::class)
 class ListAdapterTest : BaseTest() {
 
@@ -68,7 +67,7 @@ class ListAdapterTest : BaseTest() {
     private val asyncActionStatusObserverSlot = slot<Observer<AsyncActionStatus>>()
     private val asyncActionStatusSlot = slot<AsyncActionStatus>()
     private val orientation = RecyclerView.VERTICAL
-    private val template = Container(children = listOf())
+    private val template by lazy { Container(children = listOf()) }
     private val iteratorName = "iteratorName"
     private val key = "id"
     private val generatedId = 10

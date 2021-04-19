@@ -66,7 +66,7 @@ extension Button {
         case text
         case styleId
         case onPress
-        case disabled
+        case enabled
         case clickAnalyticsEvent
     }
 
@@ -76,7 +76,7 @@ extension Button {
         text = try container.decode(Expression<String>.self, forKey: .text)
         styleId = try container.decodeIfPresent(String.self, forKey: .styleId)
         onPress = try container.decodeIfPresent(forKey: .onPress)
-        disabled = try container.decodeIfPresent(Expression<Bool>.self, forKey: .disabled)
+        enabled = try container.decodeIfPresent(Expression<Bool>.self, forKey: .enabled)
         clickAnalyticsEvent = try container.decodeIfPresent(AnalyticsClick.self, forKey: .clickAnalyticsEvent)
         widgetProperties = try WidgetProperties(from: decoder)
     }
@@ -135,6 +135,7 @@ extension Container {
         case children
         case onInit
         case context
+        case styleId
     }
 
     public init(from decoder: Decoder) throws {
@@ -144,6 +145,7 @@ extension Container {
         widgetProperties = try WidgetProperties(from: decoder)
         onInit = try container.decodeIfPresent(forKey: .onInit)
         context = try container.decodeIfPresent(Context.self, forKey: .context)
+        styleId = try container.decodeIfPresent(String.self, forKey: .styleId)
     }
 }
 
@@ -279,6 +281,24 @@ extension PageView {
     }
 }
 
+// MARK: Route.NewPath.HttpAdditionalData Decodable
+extension Route.NewPath.HttpAdditionalData {
+
+    enum CodingKeys: String, CodingKey {
+        case method
+        case headers
+        case body
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        method = try container.decodeIfPresent(HTTPMethod.self, forKey: .method)
+        headers = try container.decodeIfPresent([String: String].self, forKey: .headers)
+        body = try container.decodeIfPresent(DynamicObject.self, forKey: .body)
+    }
+}
+
 // MARK: ScreenComponent Decodable
 extension ScreenComponent {
 
@@ -343,7 +363,7 @@ extension SendRequest {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         url = try container.decode(Expression<String>.self, forKey: .url)
-        method = try container.decodeIfPresent(Expression<SendRequest.HTTPMethod>.self, forKey: .method)
+        method = try container.decodeIfPresent(Expression<HTTPMethod>.self, forKey: .method)
         data = try container.decodeIfPresent(DynamicObject.self, forKey: .data)
         headers = try container.decodeIfPresent(Expression<[String: String]>.self, forKey: .headers)
         onSuccess = try container.decodeIfPresent(forKey: .onSuccess)
@@ -359,6 +379,7 @@ extension SimpleForm {
     enum CodingKeys: String, CodingKey {
         case context
         case onSubmit
+        case onValidationError
         case children
     }
 
@@ -367,6 +388,7 @@ extension SimpleForm {
 
         context = try container.decodeIfPresent(Context.self, forKey: .context)
         onSubmit = try container.decodeIfPresent(forKey: .onSubmit)
+        onValidationError = try container.decodeIfPresent(forKey: .onValidationError)
         children = try container.decode(forKey: .children)
         widgetProperties = try WidgetProperties(from: decoder)
     }
@@ -420,6 +442,7 @@ extension TextInput {
         case value
         case placeholder
         case disabled
+        case enabled
         case readOnly
         case type
         case hidden
@@ -427,6 +450,8 @@ extension TextInput {
         case onChange
         case onBlur
         case onFocus
+        case error
+        case showError
     }
 
     public init(from decoder: Decoder) throws {
@@ -435,6 +460,7 @@ extension TextInput {
         value = try container.decodeIfPresent(Expression<String>.self, forKey: .value)
         placeholder = try container.decodeIfPresent(Expression<String>.self, forKey: .placeholder)
         disabled = try container.decodeIfPresent(Expression<Bool>.self, forKey: .disabled)
+        enabled = try container.decodeIfPresent(Expression<Bool>.self, forKey: .enabled)
         readOnly = try container.decodeIfPresent(Expression<Bool>.self, forKey: .readOnly)
         type = try container.decodeIfPresent(Expression<TextInputType>.self, forKey: .type)
         hidden = try container.decodeIfPresent(Expression<Bool>.self, forKey: .hidden)
@@ -442,6 +468,8 @@ extension TextInput {
         onChange = try container.decodeIfPresent(forKey: .onChange)
         onBlur = try container.decodeIfPresent(forKey: .onBlur)
         onFocus = try container.decodeIfPresent(forKey: .onFocus)
+        error = try container.decodeIfPresent(Expression<String>.self, forKey: .error)
+        showError = try container.decodeIfPresent(Expression<Bool>.self, forKey: .showError)
         widgetProperties = try WidgetProperties(from: decoder)
     }
 }

@@ -32,7 +32,8 @@ struct AppTheme {
         .tabViewStyle: Self.tabView,
         .textInputStyle: Self.designSystemTextInput,
         .textInputBFFStyle: textInput,
-        .buttonContextStyle: designSystemButtonScreenContext
+        .buttonContextStyle: designSystemButtonScreenContext,
+        .containerStyle: containerStyle
     ])
     
     static func blackTextNormalStyle() -> (UITextView?) -> Void {
@@ -52,10 +53,8 @@ struct AppTheme {
     }
     
     static func designSystemTextInput() -> (UITextField?) -> Void {
-        return {
-            $0?.textColor = .black
-            $0?.font = .boldSystemFont(ofSize: 30)
-        }
+        return BeagleStyle.textInput(validInputColor: .gray, invalidInputColor: .red, borderStyle: .roundedRect, borderWidth: 1)
+        
     }
     
     static func designSystemStylishButton() -> (UIButton?) -> Void {
@@ -106,9 +105,20 @@ struct AppTheme {
     }
   
     static func designSystemButtonScreenContext() -> (UIButton?) -> Void {
-           return BeagleStyle.button(withTitleColor: .white)
-               <> {
-                   $0?.titleLabel |> BeagleStyle.label(withFont: .systemFont(ofSize: 16, weight: .semibold))
-           }
-       }
+        return BeagleStyle.button(withTitleColor: .white)
+            <> {
+                $0?.titleLabel |> BeagleStyle.label(withFont: .systemFont(ofSize: 16, weight: .semibold))
+        }
+    }
+    
+    static func containerStyle() -> (UIView?) -> Void {
+        return {
+            // swiftlint:disable object_literal
+            UIGraphicsBeginImageContext(CGSize(width: 100, height: 100))
+            UIImage(named: "blackHole")?.draw(in: CGRect(x: 0, y: 0, width: 100, height: 100))
+            guard let image = UIGraphicsGetImageFromCurrentImageContext() else { return }
+            UIGraphicsEndImageContext()
+            $0?.backgroundColor = UIColor(patternImage: image)
+        }
+    }
 }

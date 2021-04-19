@@ -23,10 +23,11 @@ import br.com.zup.beagle.R
 import br.com.zup.beagle.android.action.Action
 import br.com.zup.beagle.android.context.Bind
 import br.com.zup.beagle.android.context.ContextData
-import br.com.zup.beagle.android.engine.renderer.ActivityRootView
-import br.com.zup.beagle.android.engine.renderer.FragmentRootView
 import br.com.zup.beagle.android.view.ViewFactory
+import br.com.zup.beagle.android.widget.ActivityRootView
+import br.com.zup.beagle.android.widget.FragmentRootView
 import br.com.zup.beagle.android.widget.RootView
+import br.com.zup.beagle.core.IdentifierComponent
 import br.com.zup.beagle.core.ServerDrivenComponent
 
 internal var viewFactory = ViewFactory()
@@ -44,8 +45,17 @@ fun ServerDrivenComponent.handleEvent(
     origin: View,
     actions: List<Action>,
     context: ContextData? = null,
-) {
-    contextActionExecutor.executeActions(rootView, origin, this, actions, context)
+    analyticsValue: String? = null,
+
+    ) {
+    contextActionExecutor.executeActions(
+        rootView,
+        origin,
+        this,
+        actions,
+        context,
+        analyticsValue
+    )
 }
 
 /**
@@ -84,8 +94,16 @@ fun ServerDrivenComponent.handleEvent(
     origin: View,
     action: Action,
     context: ContextData? = null,
+    analyticsValue: String? = null,
 ) {
-    contextActionExecutor.executeActions(rootView, origin, this, listOf(action), context)
+    contextActionExecutor.executeActions(
+        rootView,
+        origin,
+        this,
+        listOf(action),
+        context,
+        analyticsValue
+    )
 }
 
 /**
@@ -134,10 +152,7 @@ internal fun <T> internalObserveBindChanges(
     bind: Bind<T>,
     observes: Observer<T?>,
 ) {
-    val value = bind.observe(rootView, view, observes)
-    if (bind is Bind.Value) {
-        observes(value)
-    }
+    bind.observe(rootView, view, observes)
 }
 
 /**
@@ -145,16 +160,24 @@ internal fun <T> internalObserveBindChanges(
  * @property activity <p>is the reference for your activity.
  * Make sure to use this method if you are inside a Activity because of the lifecycle</p>
  */
-fun ServerDrivenComponent.toView(activity: AppCompatActivity, idView: Int = R.id.beagle_default_id): View =
-    this.toView(ActivityRootView(activity, idView))
+fun ServerDrivenComponent.toView(
+    activity: AppCompatActivity,
+    idView: Int = R.id.beagle_default_id,
+    screenIdentifier: String? = null,
+): View =
+    this.toView(ActivityRootView(activity, idView, this.getServerDrivenIdentifier(screenIdentifier)))
 
 /**
  * Transform your Component to a view.
  * @property fragment <p>is the reference for your fragment.
  * Make sure to use this method if you are inside a Fragment because of the lifecycle</p>
  */
-fun ServerDrivenComponent.toView(fragment: Fragment, idView: Int = R.id.beagle_default_id): View =
-    this.toView(FragmentRootView(fragment, idView))
+fun ServerDrivenComponent.toView(
+    fragment: Fragment,
+    idView: Int = R.id.beagle_default_id,
+    screenIdentifier: String? = null,
+): View =
+    this.toView(FragmentRootView(fragment, idView, this.getServerDrivenIdentifier(screenIdentifier)))
 
 internal fun ServerDrivenComponent.toView(
     rootView: RootView,
@@ -163,10 +186,24 @@ internal fun ServerDrivenComponent.toView(
     generateIdManager.createSingleManagerByRootViewId()
     val view = viewFactory.makeBeagleFlexView(rootView).apply {
         id = rootView.getParentId()
-        addServerDrivenComponent(this@toView)
+        addView(this@toView)
     }
-    view.listenerOnViewDetachedFromWindow = {
+    view.addListenerOnViewDetachedFromWindow {
         generateIdManager.onViewDetachedFromWindow(view)
     }
     return view
 }
+
+private fun ServerDrivenComponent.getServerDrivenIdentifier(screenIdentifier: String?): String {
+    screenIdentifier?.let {
+        return it
+    }
+    var identifier = ""
+    if (this is IdentifierComponent) {
+        this.id?.let {
+            identifier = it
+        }
+    }
+    return identifier
+}
+

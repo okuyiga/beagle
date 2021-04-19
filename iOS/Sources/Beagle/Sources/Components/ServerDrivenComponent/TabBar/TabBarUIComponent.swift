@@ -97,7 +97,7 @@ final class TabBarUIComponent: UIScrollView {
         }
         guard let selectedTabItem = tabItemViews[model.tabIndex ?? 0] else { return }
         setupIndicatorViewStyle(for: selectedTabItem)
-        model.renderer.controller.setNeedsLayout(component: self)
+        model.renderer.controller?.setNeedsLayout(component: self)
     }
     
     private func setupScrollView() {
@@ -163,7 +163,6 @@ private extension TabBarUIComponent {
         item.style.setup(
             Style(
                 size: Size().height(62).width(.init(value: Double(width), type: .real)),
-                position: EdgeValue().left(5),
                 flex: Flex()
                     .alignItems(.center)
                     .justifyContent(.spaceEvenly))
@@ -235,10 +234,8 @@ private extension TabBarUIComponent {
             options: .curveLinear,
             animations: {
                 self.setupIndicatorViewStyle(for: tabItem)
-                
-                // TODO: setNeedLayout should call layoutIfNeeded
-                self.model.renderer.controller.setNeedsLayout(component: self)
-                self.model.renderer.controller.view.layoutIfNeeded()
+                self.model.renderer.controller?.setNeedsLayout(component: self)
+                self.model.renderer.controller?.view.layoutIfNeeded()
             }
         )
     }

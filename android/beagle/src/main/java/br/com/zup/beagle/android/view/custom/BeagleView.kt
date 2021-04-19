@@ -18,15 +18,19 @@ package br.com.zup.beagle.android.view.custom
 
 import android.annotation.SuppressLint
 import android.view.View
-import androidx.lifecycle.Observer
+import br.com.zup.beagle.android.data.formatUrl
+import br.com.zup.beagle.android.networking.RequestData
 import br.com.zup.beagle.android.utils.BeagleRetry
 import br.com.zup.beagle.android.utils.generateViewModelInstance
 import br.com.zup.beagle.android.view.ScreenRequest
 import br.com.zup.beagle.android.view.ServerDrivenState
+import br.com.zup.beagle.android.view.mapper.toRequestData
+import br.com.zup.beagle.android.view.viewmodel.AnalyticsViewModel
 import br.com.zup.beagle.android.view.viewmodel.BeagleViewModel
 import br.com.zup.beagle.android.view.viewmodel.ViewState
 import br.com.zup.beagle.android.widget.RootView
 import br.com.zup.beagle.core.ServerDrivenComponent
+import java.net.URI
 
 @Deprecated("It was deprecated in version 1.2.0 and will be removed in a future version." +
     " Use OnServerStateChanged instead.", replaceWith = ReplaceWith("OnServerStateChanged",
@@ -36,7 +40,6 @@ typealias OnStateChanged = (state: BeagleViewState) -> Unit
 typealias OnServerStateChanged = (serverState: ServerDrivenState) -> Unit
 
 typealias OnLoadCompleted = () -> Unit
-
 
 sealed class BeagleViewState {
     data class Error(val throwable: Throwable) : BeagleViewState()
@@ -48,7 +51,7 @@ sealed class BeagleViewState {
 internal class BeagleView(
     private val rootView: RootView,
     private val viewModel: BeagleViewModel = rootView.generateViewModelInstance(),
-) : BeagleFlexView(rootView) {
+) : InternalBeagleFlexView(rootView) {
 
     @Deprecated("It was deprecated in version 1.2.0 and will be removed in a future version." +
         " Use serverStateChangedListener instead.")
@@ -58,16 +61,25 @@ internal class BeagleView(
 
     var loadCompletedListener: OnLoadCompleted? = null
 
+    @Deprecated(
+        message = "It was deprecated in version 1.7.0 and will be removed in a future version. " +
+            "Use field httpAdditionalData.", replaceWith = ReplaceWith("loadView(requestData)")
+    )
     fun loadView(screenRequest: ScreenRequest) {
-        loadView(screenRequest, null)
+        loadView(screenRequest.toRequestData(), null)
+    }
+
+    fun loadView(requestData: RequestData) {
+        loadView(requestData, null)
     }
 
     fun updateView(url: String, view: View) {
-        loadView(ScreenRequest(url), view)
+        val urlFormatted = url.formatUrl()
+        loadView(RequestData(url = urlFormatted, uri = URI(urlFormatted)), view)
     }
 
-    private fun loadView(screenRequest: ScreenRequest, view: View?) {
-        viewModel.fetchComponent(screenRequest).observe(rootView.getLifecycleOwner(), Observer { state ->
+    private fun loadView(requestData: RequestData, view: View?) {
+        viewModel.fetchComponent(requestData).observe(rootView.getLifecycleOwner(), { state ->
             handleResponse(state, view)
         })
     }
@@ -78,7 +90,7 @@ internal class BeagleView(
         when (state) {
             is ViewState.Loading -> handleLoading(state.value)
             is ViewState.Error -> handleError(state.throwable, state.retry)
-            is ViewState.DoRender -> renderComponent(state.component, view)
+            is ViewState.DoRender -> renderComponent(state.component, view, state.screenId)
         }
     }
 
@@ -103,7 +115,11 @@ internal class BeagleView(
         serverStateChangedListener?.invoke(ServerDrivenState.Error(throwable, retry))
     }
 
-    private fun renderComponent(component: ServerDrivenComponent, view: View? = null) {
+    private fun renderComponent(
+        component: ServerDrivenComponent,
+        view: View? = null,
+        screenIdentifier: String?,
+    ) {
         serverStateChangedListener?.invoke(ServerDrivenState.Success)
         if (view != null) {
             removeView(view)
@@ -112,6 +128,11 @@ internal class BeagleView(
             removeAllViewsInLayout()
             addServerDrivenComponent(component)
             loadCompletedListener?.invoke()
+        }
+        screenIdentifier?.let {
+            rootView.generateViewModelInstance<AnalyticsViewModel>().createScreenReport(
+                screenIdentifier
+            )
         }
     }
 }

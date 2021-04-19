@@ -5,6 +5,7 @@
       - 
   ▿ direction: Optional<Direction>
     - some: Direction.vertical
+  - isScrollIndicatorVisible: Optional<Bool>.none
   ▿ iteratorName: Optional<String>
     - some: "main"
   - key: Optional<String>.none
@@ -21,6 +22,7 @@
         - type: "custom:beagleschematestscomponent"
     - context: Optional<Context>.none
     - onInit: Optional<Array<Action>>.none
+    - styleId: Optional<String>.none
     ▿ widgetProperties: WidgetProperties
       - accessibility: Optional<Accessibility>.none
       - id: Optional<String>.none

@@ -25,22 +25,33 @@ import br.com.zup.beagle.widget.context.ContextData
 import br.com.zup.beagle.widget.form.SimpleForm
 import kotlin.properties.Delegates
 
+@Deprecated("It was deprecated in version 1.7.0 and will be removed in a future version." +
+    " Use class SimpleForm.", ReplaceWith("SimpleForm()"))
 fun simpleForm(block: SimpleFormBuilder.() -> Unit) = SimpleFormBuilder().apply(block).build()
 
-class SimpleFormBuilder: BeagleBuilder<SimpleForm> {
+@Deprecated("It was deprecated in version 1.7.0 and will be removed in a future version." +
+    " Use class SimpleForm.", ReplaceWith("SimpleForm()"))
+class SimpleFormBuilder : BeagleBuilder<SimpleForm> {
     var context: ContextData by Delegates.notNull()
     var onSubmit: MutableList<Action> by Delegates.notNull()
+    var onValidationError: MutableList<Action>? = null
     var children: MutableList<ServerDrivenComponent> by Delegates.notNull()
 
     fun context(context: ContextData) = this.apply { this.context = context }
 
     fun onSubmit(onSubmit: List<Action>) = this.apply { this.onSubmit = onSubmit.toMutableList() }
 
-    fun children(children: List<ServerDrivenComponent>)
-        = this.apply { this.children = children.toMutableList() }
+    fun onValidationError(onValidationError: List<Action>?) =
+        this.apply { this.onValidationError = onValidationError?.toMutableList() }
+
+    fun children(children: List<ServerDrivenComponent>) = this.apply { this.children = children.toMutableList() }
 
     fun context(block: ContextDataBuilder.() -> Unit) {
         context(ContextDataBuilder().apply(block).build())
+    }
+
+    fun onValidationError(block: BeagleListBuilder<Action>.() -> Unit) {
+        onValidationError(BeagleListBuilder<Action>().apply(block).build())
     }
 
     fun onSubmit(block: BeagleListBuilder<Action>.() -> Unit) {
@@ -54,6 +65,7 @@ class SimpleFormBuilder: BeagleBuilder<SimpleForm> {
     override fun build() = SimpleForm(
         context = context,
         onSubmit = onSubmit,
-        children = children
+        children = children,
+        onValidationError = onValidationError
     )
 }

@@ -43,7 +43,7 @@ class TextInputTests: XCTestCase {
         assertSnapshot(matching: component, as: .dump)
     }
     
-    func testTextInputTypes() throws {
+    func testTextInputTypes() {
         // Given
         let component = TextInput(value: "", placeholder: "", type: .value(.password))
         
@@ -58,46 +58,102 @@ class TextInputTests: XCTestCase {
         XCTAssertEqual(textField.keyboardType, inputType)
     }
 
-    func test_renderTextInputComponent() throws {
+    func test_renderTextInputComponent() {
+        // Given
         let textInput = TextInput(
             value: "",
             placeholder: "password",
-            disabled: .value(false),
-            readOnly: .value(false),
             type: .value(.password),
-            hidden: .value(false),
             styleId: "test.textInput.style",
-            onChange: [ActionDummy()],
-            onBlur: [ActionDummy()],
-            onFocus: [ActionDummy()],
             widgetProperties: WidgetProperties(style: .init(size: Size().width(300).height(80))))
         
+        // When
         let view = renderer.render(textInput)
         
+        // Then
         assertSnapshotImage(view, size: .custom(CGSize(width: 300, height: 80)))
     }
     
-    func test_textInputComponent_whenTextValueChanges() throws {
+    func test_textInputComponent_whenTextValueChanges() {
+        // Given
         let textInput = TextInput(
             value: "",
             placeholder: "type here",
-            disabled: .value(false),
-            readOnly: .value(false),
             type: .value(.text),
-            hidden: .value(false),
             styleId: "test.textInput.style",
-            onChange: [ActionDummy()],
-            onBlur: [ActionDummy()],
-            onFocus: [ActionDummy()],
             widgetProperties: WidgetProperties(style: .init(size: Size().width(300).height(80))))
         
         guard let textField = renderer.render(textInput) as? UITextField else {
             XCTFail("Unable to type cast to UITextField.")
             return
         }
+        
+        // When
         textField.text = "new value"
         
+        // Then
         assertSnapshotImage(textField, size: .custom(CGSize(width: 300, height: 80)))
+    }
+    
+    func test_renderTextInputWithValidationComponent() {
+        // Given
+        let textInput = TextInput(
+            value: "k",
+            placeholder: "password",
+            type: .value(.password),
+            error: .value("Password must have 6 characters."),
+            showError: .value(true),
+            widgetProperties: WidgetProperties(style: .init(size: Size().width(300).height(35)))
+        )
+                
+        // When
+        let controller = BeagleScreenViewController(viewModel: .init(screenType: .declarative(textInput.toScreen()), dependencies: dependencies))
+        
+        // Then
+        assertSnapshotImage(controller.view, size: ImageSize.custom(CGSize(width: 300, height: 70)))
+    }
+    
+    func test_renderTextInputWithDisabled() {
+        // Given
+        let textInput = TextInput(
+            value: "@{textinput.value}",
+            disabled: "@{textinput.disabled}",
+            widgetProperties: WidgetProperties(style: .init(size: Size().width(100).height(50)))
+        )
+                
+        // When // Then
+        let controller = BeagleScreenViewController(viewModel: .init(screenType: .declarative(textInput.toScreen()), dependencies: dependencies))
+        controller.view.setContext(Context(id: "textinput", value: ["value": "enabled", "disabled": false]))
+        assertSnapshotImage(controller, size: ImageSize.custom(CGSize(width: 100, height: 50)))
+        
+        controller.view.setContext(Context(id: "textinput", value: ["value": "disabled", "disabled": true]))
+        assertSnapshotImage(controller, size: ImageSize.custom(CGSize(width: 100, height: 50)))
+    }
+    
+    func test_renderTextInputWithEnabled() {
+        // Given
+        let textInput = TextInput(
+            value: "@{textinput.value}",
+            enabled: "@{textinput.enabled}",
+            styleId: "customStyle",
+            widgetProperties: WidgetProperties(style: .init(size: Size().width(100).height(50)))
+        )
+        
+        func customStyle() -> (UITextField?) -> Void {
+            return {
+                $0?.textColor = ($0?.isEnabled ?? false) ? .blue : .red
+            }
+        }
+        let theme = AppTheme(styles: ["customStyle": customStyle])
+        let customDependencies = BeagleScreenDependencies(theme: theme)
+        
+        // When // Then
+        let controller = BeagleScreenViewController(viewModel: .init(screenType: .declarative(textInput.toScreen()), dependencies: customDependencies))
+        controller.view.setContext(Context(id: "textinput", value: ["value": "enabled", "enabled": true]))
+        assertSnapshotImage(controller, size: ImageSize.custom(CGSize(width: 100, height: 50)))
+        
+        controller.view.setContext(Context(id: "textinput", value: ["value": "disabled", "enabled": false]))
+        assertSnapshotImage(controller, size: ImageSize.custom(CGSize(width: 100, height: 50)))
     }
 
     private func inputTypeToKeyboardType(_ inputType: TextInputType?) -> UIKeyboardType {

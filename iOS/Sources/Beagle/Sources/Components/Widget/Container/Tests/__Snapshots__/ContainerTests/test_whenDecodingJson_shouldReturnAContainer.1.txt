@@ -8,6 +8,7 @@
       - type: "custom:beagleschematestscomponent"
   - context: Optional<Context>.none
   - onInit: Optional<Array<Action>>.none
+  - styleId: Optional<String>.none
   ▿ widgetProperties: WidgetProperties
     - accessibility: Optional<Accessibility>.none
     - id: Optional<String>.none
@@ -19,7 +20,8 @@
         - borderWidth: Optional<Double>.none
         ▿ cornerRadius: Optional<CornerRadius>
           ▿ some: CornerRadius
-            - radius: 30.0
+            ▿ radius: Optional<Double>
+              - some: 30.0
         - display: Optional<Expression<Display>>.none
         ▿ flex: Optional<Flex>
           ▿ some: Flex

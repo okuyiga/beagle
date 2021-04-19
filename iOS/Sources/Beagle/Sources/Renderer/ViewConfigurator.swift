@@ -62,9 +62,9 @@ class ViewConfigurator: ViewConfiguratorProtocol {
         if let hex = style?.backgroundColor {
             view?.backgroundColor = UIColor(hex: hex)
         }
-        if let cornerRadius = style?.cornerRadius {
+        if let radius = style?.cornerRadius?.radius {
             view?.layer.masksToBounds = true
-            view?.layer.cornerRadius = CGFloat(cornerRadius.radius)
+            view?.layer.cornerRadius = CGFloat(radius)
         }
         if let borderWidth = style?.borderWidth {
             view?.layer.borderWidth = CGFloat(borderWidth)
@@ -94,5 +94,9 @@ class ViewConfigurator: ViewConfiguratorProtocol {
             object?.accessibilityLabel = label
         }
         object?.isAccessibilityElement = accessibility.accessible
+        
+        if let isHeader = accessibility.isHeader {
+            object?.accessibilityTraits = isHeader ? .header : .none
+        }
     }
 }

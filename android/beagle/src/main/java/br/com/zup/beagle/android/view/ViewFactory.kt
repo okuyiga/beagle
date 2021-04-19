@@ -28,6 +28,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
+import br.com.zup.beagle.R
 import br.com.zup.beagle.android.components.BeagleRecyclerView
 import br.com.zup.beagle.android.components.utils.RoundedImageView
 import br.com.zup.beagle.android.view.custom.BeagleFlexView
@@ -48,6 +49,16 @@ internal class ViewFactory {
 
     fun makeBeagleFlexView(rootView: RootView, style: Style) = BeagleFlexView(rootView, style)
 
+    fun makeBeagleFlexView(
+        rootView: RootView,
+        style: Style,
+        styleId: Int,
+    ) = BeagleFlexView(
+        rootView,
+        style,
+        styleId = styleId,
+    )
+
     fun makeScrollView(context: Context) = ScrollView(context).apply {
         isFillViewport = true
     }
@@ -58,11 +69,15 @@ internal class ViewFactory {
 
     fun makeButton(context: Context, id: Int) = Button(ContextThemeWrapper(context, id), null, 0)
 
+    fun makeButton(context: Context) = Button(context)
+
     fun makeTextView(context: Context) = TextView(context)
 
     fun makeTextView(context: Context, id: Int) = TextView(ContextThemeWrapper(context, id), null, 0)
 
     fun makeInputText(context: Context, id: Int) = EditText(ContextThemeWrapper(context, id), null, 0)
+
+    fun makeInputText(context: Context) = EditText(context)
 
     fun makeAlertDialogBuilder(context: Context) = AlertDialog.Builder(context)
 
@@ -82,4 +97,10 @@ internal class ViewFactory {
     fun makeRecyclerView(context: Context) = RecyclerView(context)
 
     fun makeBeagleRecyclerView(context: Context) = BeagleRecyclerView(context)
+
+    fun makeBeagleRecyclerViewScrollIndicatorHorizontal(context: Context) =
+        BeagleRecyclerView(ContextThemeWrapper(context, R.style.Beagle_Widget_ScrollIndicatorHorizontal))
+
+    fun makeBeagleRecyclerViewScrollIndicatorVertical(context: Context) =
+        BeagleRecyclerView(ContextThemeWrapper(context, R.style.Beagle_Widget_ScrollIndicatorVertical))
 }

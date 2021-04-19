@@ -29,14 +29,14 @@ extension Button {
             button.setTitle($0, for: .normal)
         }
         
-        renderer.observe(disabled, andUpdateManyIn: button) {
-            if let disabled = $0 {
-                button.isEnabled = !disabled
-                button.setTitleColor(disabled ? .systemGray : .systemBlue, for: .normal)
+        renderer.observe(enabled, andUpdateManyIn: button) {
+            if let enabled = $0 {
+                button.isEnabled = enabled
+                button.setTitleColor(enabled ? .systemBlue : .systemGray, for: .normal)
             }
         }
         
-        let preFetchHelper = renderer.controller.dependencies.preFetchHelper
+        let preFetchHelper = renderer.dependencies.preFetchHelper
         onPress?
             .compactMap { ($0 as? Navigate)?.newPath }
             .forEach { preFetchHelper.prefetchComponent(newPath: $0) }
@@ -61,7 +61,7 @@ extension Button {
         required init(
             onPress: [Action]?,
             clickAnalyticsEvent: AnalyticsClick? = nil,
-            controller: BeagleController
+            controller: BeagleController?
         ) {
             super.init(frame: .zero)
             self.onPress = onPress

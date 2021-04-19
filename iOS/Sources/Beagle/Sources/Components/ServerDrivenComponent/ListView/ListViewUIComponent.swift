@@ -20,7 +20,7 @@ private struct CellsContextManager {
     
     private var orphanCells = [Int: ListViewCell]()
     
-    private var itemContexts = [Int: [String: DynamicObject]]()
+    private var itemContexts = [Int: DynamicDictionary]()
     
     mutating func track(orphanCell cell: ListViewCell) {
         if let itemHash = cell.itemHash {
@@ -40,7 +40,7 @@ private struct CellsContextManager {
         orphanCells.removeValue(forKey: itemHash)
     }
     
-    mutating func contexts(for itemHash: Int) -> [String: DynamicObject]? {
+    mutating func contexts(for itemHash: Int) -> DynamicDictionary? {
         if let orphan = orphanCells[itemHash] {
             reuse(cell: orphan)
         }
@@ -96,9 +96,11 @@ final class ListViewUIComponent: UIView {
         collection.register(ListViewCell.self, forCellWithReuseIdentifier: "ListViewCell")
         collection.dataSource = self
         collection.delegate = self
+        collection.showsHorizontalScrollIndicator = model.isScrollIndicatorVisible
+        collection.showsVerticalScrollIndicator = model.isScrollIndicatorVisible
         
         let parentController = listController.renderer.controller
-        parentController.addChild(listController)
+        parentController?.addChild(listController)
         addSubview(listController.view)
         listController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         listController.view.frame = bounds
@@ -192,7 +194,7 @@ final class ListViewUIComponent: UIView {
         
         if items?.count == 0 || didReachScrollThreshol {
             onScrollEndExecuted = true
-            renderer.controller.execute(actions: model.onScrollEnd, event: "onScrollEnd", origin: self)
+            renderer.controller?.execute(actions: model.onScrollEnd, event: "onScrollEnd", origin: self)
         }
     }
     
@@ -216,6 +218,7 @@ extension ListViewUIComponent {
         var iteratorName: String
         var onScrollEnd: [Action]?
         var scrollEndThreshold: CGFloat
+        var isScrollIndicatorVisible: Bool
     }
 }
 

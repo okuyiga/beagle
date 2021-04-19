@@ -1,8 +1,8 @@
 ▿ Button
   - clickAnalyticsEvent: Optional<AnalyticsClick>.none
-  ▿ disabled: Optional<Expression<Bool>>
+  ▿ enabled: Optional<Expression<Bool>>
     ▿ some: Expression<Bool>
-      - value: true
+      - value: false
   ▿ onPress: Optional<Array<Action>>
     ▿ some: 1 element
       ▿ Navigate
@@ -22,7 +22,8 @@
         - borderWidth: Optional<Double>.none
         ▿ cornerRadius: Optional<CornerRadius>
           ▿ some: CornerRadius
-            - radius: 30.0
+            ▿ radius: Optional<Double>
+              - some: 30.0
         - display: Optional<Expression<Display>>.none
         - flex: Optional<Flex>.none
         - margin: Optional<EdgeValue>.none

@@ -15,9 +15,11 @@
  */
 package br.com.zup.beagle.widget.action
 
+import br.com.zup.beagle.newanalytics.ActionAnalyticsConfig
 import br.com.zup.beagle.widget.context.Bind
 import br.com.zup.beagle.widget.context.valueOf
 import br.com.zup.beagle.widget.layout.Screen
+import br.com.zup.beagle.widget.networking.HttpAdditionalData
 
 /**
  * This defines navigation type,
@@ -30,21 +32,25 @@ sealed class Route {
      * @param url attribute that contains the navigation endpoint.
      * @param shouldPrefetch tells Beagle if the navigation request should be previously loaded or not.
      * @param fallback screen that is rendered in case the request fails.
+     * @param httpAdditionalData additional parameters to request
      */
     data class Remote constructor(
         val url: Bind<String>,
         val shouldPrefetch: Boolean = false,
-        val fallback: Screen? = null
+        val fallback: Screen? = null,
+        val httpAdditionalData: HttpAdditionalData? = null
     ) : Route() {
 
         constructor(
             url: String,
             shouldPrefetch: Boolean = false,
-            fallback: Screen? = null
+            fallback: Screen? = null,
+            httpAdditionalData: HttpAdditionalData? = null
         ) : this(
             valueOf(url),
             shouldPrefetch,
-            fallback
+            fallback,
+            httpAdditionalData
         )
     }
 
@@ -59,13 +65,13 @@ sealed class Route {
 /**
  * Class handles transition actions between screens in the application. Its structure is the following:.
  */
-sealed class Navigate : Action {
+sealed class Navigate : AnalyticsAction {
 
     /**
      * Opens one of the browsers available on the device with the passed url.
      * @param url defined route to be shown.
      */
-    data class OpenExternalURL(val url: String) : Navigate()
+    data class OpenExternalURL(val url: String, override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * This action opens the route to execute the action declared in the deeplink that was defined for the application.
@@ -76,7 +82,8 @@ sealed class Navigate : Action {
      */
     class OpenNativeRoute(val route: String,
                           val shouldResetApplication: Boolean = false,
-                          val data: Map<String, String>? = null) : Navigate()
+                          val data: Map<String, String>? = null,
+                          override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * Present a new screen with the link declared in the route attribute.
@@ -87,12 +94,14 @@ sealed class Navigate : Action {
      * @param controllerId in this field passes the id created in the custom activity for beagle to create the flow,
      * if not the beagle passes default activity.
      */
-    data class PushStack(val route: Route, val controllerId: String? = null) : Navigate()
+    data class PushStack(val route: Route,
+                         val controllerId: String? = null,
+                         override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * This action closes the current view stack.
      */
-    class PopStack : Navigate()
+    data class PopStack(override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * This type means the action to be performed is the opening
@@ -102,19 +111,19 @@ sealed class Navigate : Action {
      * @param route this defines navigation type, it can be a navigation to a remote route in which Beagle will
      * deserialize the content or to a local screen already built.
      */
-    data class PushView(val route: Route) : Navigate()
+    data class PushView(val route: Route, override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * Action that closes the current view.
      */
-    class PopView : Navigate()
+    data class PopView(override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * It is responsible for returning the stack of screens in the application flow to a specific screen.
      *
      * @param route route of a screen that it's on the pile.
      */
-    data class PopToView(val route: String) : Navigate()
+    data class PopToView(val route: String, override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * This attribute, when selected, opens a screen with the route informed
@@ -125,7 +134,9 @@ sealed class Navigate : Action {
      * @param controllerId in this field passes the id created in the custom activity for beagle to create the flow,
      * if not the beagle passes default activity.
      */
-    data class ResetApplication(val route: Route, val controllerId: String? = null) : Navigate()
+    data class ResetApplication(val route: Route,
+                                val controllerId: String? = null,
+                                override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
     /**
      * This attribute, when selected, opens a screen with the route informed
@@ -136,6 +147,8 @@ sealed class Navigate : Action {
      * @param controllerId in this field passes the id created in the custom activity for beagle to create the flow,
      * if not the beagle passes default activity.
      */
-    data class ResetStack(val route: Route, val controllerId: String? = null) : Navigate()
+    data class ResetStack(val route: Route,
+                          val controllerId: String? = null,
+                          override var analytics: ActionAnalyticsConfig? = null) : Navigate()
 
 }

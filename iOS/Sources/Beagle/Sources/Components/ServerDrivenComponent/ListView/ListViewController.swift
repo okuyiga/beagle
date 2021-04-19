@@ -78,16 +78,16 @@ final class ListViewController: UIViewController {
 extension ListViewController: BeagleControllerProtocol {
     
     var dependencies: BeagleDependenciesProtocol {
-        return renderer.controller.dependencies
+        return renderer.dependencies
     }
     
     var serverDrivenState: ServerDrivenState {
-        get { return renderer.controller.serverDrivenState }
-        set { renderer.controller.serverDrivenState = newValue }
+        get { return renderer.controller?.serverDrivenState ?? .finished }
+        set { renderer.controller?.serverDrivenState = newValue }
     }
     
     var screenType: ScreenType {
-        return renderer.controller.screenType
+        return renderer.controller?.screenType ?? .declarativeText("")
     }
     
     var screen: Screen? {
@@ -155,10 +155,6 @@ private struct AsyncActionTracker: Action {
     
     let uuid: UUID
     weak var delegate: ListViewDelegate?
-    
-    var analytics: ActionAnalyticsConfig? {
-        return nil
-    }
     
     init(uuid: UUID, delegate: ListViewDelegate?) {
         self.uuid = uuid

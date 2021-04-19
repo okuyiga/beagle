@@ -20,6 +20,8 @@ import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import br.com.zup.beagle.android.BaseTest
+import br.com.zup.beagle.android.action.Action
 import br.com.zup.beagle.android.action.AsyncActionStatus
 import br.com.zup.beagle.android.action.Navigate
 import br.com.zup.beagle.android.action.SendRequest
@@ -47,16 +49,16 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @DisplayName("Given an OnInitiableComponent")
 @ExtendWith(InstantExecutorExtension::class)
-class OnInitiableComponentTest {
+class OnInitiableComponentTest: BaseTest() {
 
-    private val rootView = mockk<RootView>(relaxed = true)
     private val onInitViewModel = spyk(OnInitViewModel())
     private val origin = mockk<View>(relaxed = true)
     private val listenerSlot = slot<View.OnAttachStateChangeListener>()
     private val id = 10
 
     @BeforeEach
-    fun setUp() {
+    override fun setUp() {
+        super.setUp()
         mockkConstructor(ViewModelProvider::class)
         every { anyConstructed<ViewModelProvider>().get(OnInitViewModel::class.java) } returns onInitViewModel
 
@@ -65,8 +67,8 @@ class OnInitiableComponentTest {
     }
 
     @AfterEach
-    fun tearDown() {
-        unmockkConstructor(ViewModelProvider::class)
+    override fun tearDown() {
+        super.tearDown()
     }
 
     @DisplayName("When handleOnInit is called")
@@ -166,8 +168,10 @@ class OnInitiableComponentTest {
         @Test
         fun onViewAttachedToWindowExecute() {
             // Given
-            val action = Navigate.PopView()
+            val action = mockk<Action>()
+            every { action.execute(rootView, origin) } just Runs
             val initiableWidget = Container(children = listOf(), onInit = listOf(action))
+
 
             // When
             initiableWidget.handleOnInit(rootView, origin)
@@ -175,7 +179,7 @@ class OnInitiableComponentTest {
             listenerSlot.captured.onViewAttachedToWindow(origin)
 
             // Then
-            verify(exactly = 1) { action.handleEvent(rootView, origin, action) }
+            verify(exactly = 1) { action.handleEvent(rootView, origin, action, "onInit") }
         }
 
         @DisplayName("Then should setOnInitFinished true to FINISHED AsyncAction")
@@ -222,7 +226,8 @@ class OnInitiableComponentTest {
         @Test
         fun markToRerunOnInitAgain() {
             // Given
-            val action = Navigate.PopView()
+            val action = mockk<Action>()
+            every { action.execute(rootView, origin) } just Runs
             val initiableWidget = Container(children = listOf(), onInit = listOf(action))
 
             // When
@@ -232,7 +237,7 @@ class OnInitiableComponentTest {
             listenerSlot.captured.onViewAttachedToWindow(origin)
 
             // Then
-            verify(exactly = 2) { action.handleEvent(rootView, origin, action) }
+            verify(exactly = 2) { action.handleEvent(rootView, origin, action, analyticsValue = "onInit") }
         }
     }
 }

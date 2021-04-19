@@ -19,91 +19,115 @@ import 'package:beagle/beagle.dart';
 import 'package:beagle/interface/beagle_service.dart';
 import 'package:beagle/interface/navigation_controller.dart';
 import 'package:beagle_components/beagle_components.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sample/app_beagle_config.dart';
+import 'package:sample/app_design_system.dart';
+import 'package:sample/beagle_sample_screen.dart';
+import 'package:sample/default_logger.dart';
 
-const BASE_URL =
-    'https://gist.githubusercontent.com/Tiagoperes/89739c4c93a2f82b0ceb130921c3bf56/raw/041461163dbad2ec7c234cfd28325483f3750d0b';
+Map<String, ComponentBuilder> myCustomComponents = {
+  'custom:loading': (element, _, __) {
+    return Center(
+      key: element.getKey(),
+      child: const Text('My custom loading.'),
+    );
+  }
+};
+Map<String, ActionHandler> myCustomActions = {
+  'custom:log': ({action, view, element, context}) {
+    debugPrint(action.getAttributeValue('message'));
+  }
+};
 
 void main() {
-  runApp(const BeagleSampleApp());
+  BeagleSdk.init(
+    logger: AppLogger(),
+    beagleConfig: AppBeagleConfig(),
+    components: {...defaultComponents, ...myCustomComponents},
+    actions: myCustomActions,
+    navigationControllers: {
+      'general': NavigationController(
+          isDefault: true, loadingComponent: 'custom:loading'),
+    },
+    designSystem: AppDesignSystem(),
+    customOperations: {},
+  );
+
+  runApp(const MaterialApp(home: BeagleSampleApp()));
 }
 
-class BeagleSampleApp extends StatefulWidget {
+class BeagleSampleApp extends StatelessWidget {
   const BeagleSampleApp({Key key}) : super(key: key);
 
-  @override
-  _BeagleSampleApp createState() => _BeagleSampleApp();
-}
+  static final _appBarMenuOptions = [
+    MenuOption(title: 'Tab Bar', route: '/beagle_tab_bar'),
+    MenuOption(title: 'Page View', route: '/beagle_pageview'),
+    MenuOption(title: 'Touchable', route: '/beagle_touchable'),
+    MenuOption(title: 'Web View', route: '/beagle_webview'),
+  ];
 
-class _BeagleSampleApp extends State<BeagleSampleApp> {
-  bool isBeagleReady = false;
-  Map<String, ComponentBuilder> myCustomComponents = {
-    'custom:loading': (element, _, __) {
-      return Text('My custom loading.', key: element.getKey());
-    }
-  };
-  Map<String, ActionHandler> myCustomActions = {
-    'custom:log': ({action, view, element}) {
-      debugPrint(action.getAttributeValue('message'));
-    }
-  };
-
-  Future<void> startBeagle() async {
-    await BeagleInitializer.start(
-        baseUrl: BASE_URL,
-        components: {...defaultComponents, ...myCustomComponents},
-        actions: myCustomActions,
-        navigationControllers: {
-          'general': NavigationController(
-              isDefault: true, loadingComponent: 'custom:loading'),
-        });
-    BeagleInitializer.getService().globalContext.set(5, 'counter');
-    setState(() {
-      isBeagleReady = true;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    startBeagle();
-  }
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Beagle Sample',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-        // This makes the visual density adapt to the platform that you run
-        // the app on. For desktop platforms, the controls will be smaller and
-        // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        indicatorColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+        ),
       ),
-      // home: JSCounter(),
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Beagle Sample'),
+          actions: [
+            PopupMenuButton(
+              onSelected: (MenuOption result) {
+                _handleAppBarMenuOption(result, context);
+              },
+              itemBuilder: (BuildContext context) {
+                return _appBarMenuOptions.map((menuOption) {
+                  return PopupMenuItem<MenuOption>(
+                    value: menuOption,
+                    child: Text(menuOption.title),
+                  );
+                }).toList();
+              },
+            ),
+          ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Center(
-            child: isBeagleReady
-                ? const BeagleRemoteView(route: '/lazy.json')
-                : const Text('Not ready yet!'),
-          ),
+        body: Column(
+          children: [
+            BeagleWidget(
+              screenRequest: BeagleScreenRequest('beagle_lazy'),
+              onCreateView: (view) => {
+                view.addErrorListener((errors) {
+                  //TODO
+                })
+              },
+            ),
+          ],
         ),
       ),
     );
   }
+
+  void _handleAppBarMenuOption(MenuOption menuOption, BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute<BeagleSampleScreen>(
+            builder: (buildContext) => BeagleSampleScreen(
+                  title: menuOption.title,
+                  route: menuOption.route,
+                )));
+  }
+}
+
+class MenuOption {
+  MenuOption({this.title, this.route});
+
+  final String title;
+  final String route;
 }
