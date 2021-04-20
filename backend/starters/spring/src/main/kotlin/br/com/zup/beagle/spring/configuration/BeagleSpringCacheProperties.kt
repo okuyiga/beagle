@@ -27,5 +27,5 @@ import java.time.Duration
 class BeagleSpringCacheProperties(
     include: List<String> = emptyList(),
     exclude: List<String> = emptyList(),
-    ttl: Map<String, Duration> = emptyMap()
-) : BeagleCacheProperties(include, exclude, ttl)
+    override val ttl: Map<String, Duration> = emptyMap()
+) : BeagleCacheProperties(include, exclude)

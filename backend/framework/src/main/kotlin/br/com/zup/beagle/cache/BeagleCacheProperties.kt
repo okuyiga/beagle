@@ -18,12 +18,10 @@ package br.com.zup.beagle.cache
 
 import java.time.Duration
 
-open class BeagleCacheProperties(
-    include: List<String>,
-    exclude: List<String>,
-    ttl: Map<String, Duration>
-) {
+abstract class BeagleCacheProperties(include: List<String>, exclude: List<String>) {
+    protected abstract val ttl: Map<String, Duration>
+
     val excludePatterns = exclude.filter { it.isNotBlank() }.map(::Regex)
     val includePatterns = include.filter { it.isNotBlank() }.map(::Regex)
-    val ttlPattern = ttl.filterKeys { it.isNotBlank() }
+    val ttlPattern get() = ttl.filterKeys { it.isNotBlank() }
 }

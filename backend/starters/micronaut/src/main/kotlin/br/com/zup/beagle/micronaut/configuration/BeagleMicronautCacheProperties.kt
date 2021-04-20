@@ -25,6 +25,8 @@ import java.time.Duration
 @ConfigurationProperties(BEAGLE_CACHE_ENDPOINT_PREFIX)
 class BeagleMicronautCacheProperties(
     include: List<String> = emptyList(),
-    exclude: List<String> = emptyList(),
-    @MapFormat(transformation = MapFormat.MapTransformation.FLAT) ttl: Map<String, Duration> = emptyMap()
-) : BeagleCacheProperties(include, exclude, ttl)
+    exclude: List<String> = emptyList()
+) : BeagleCacheProperties(include, exclude) {
+    @MapFormat(transformation = MapFormat.MapTransformation.FLAT)
+    override var ttl: Map<String, Duration> = emptyMap()
+}

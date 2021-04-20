@@ -87,7 +87,7 @@ abstract class BeagleCacheHandler(private val properties: BeagleCacheProperties)
         endpoint: String,
         currentPlatform: String?,
         response: Any
-    ) = response.let {
+    ) = response.also {
         addHeader(
             it,
             CACHE_HEADER,
