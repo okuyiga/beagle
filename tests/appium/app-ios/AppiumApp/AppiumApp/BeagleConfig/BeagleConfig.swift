@@ -23,7 +23,7 @@ class BeagleConfig {
         let innerDependencies = InnerDependencies()
         
         dependencies.networkClient = NetworkClientDefault(dependencies: innerDependencies)
-        dependencies.urlBuilder = UrlBuilder(baseUrl: URL(string: "http://localhost:8080/"))
+        dependencies.urlBuilder = UrlBuilder(baseUrl: URL(string: "http://alb-beagle-prod-automated-tests-957310671.sa-east-1.elb.amazonaws.com/bff/"))
         
         dependencies.deepLinkHandler = DeepLinkScreenManager()
         dependencies.analyticsProvider = LocalAnalyticsProvider.shared

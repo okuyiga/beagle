@@ -22,6 +22,7 @@ import io.appium.java_client.MobileElement
 import io.appium.java_client.android.AndroidDriver
 import io.appium.java_client.android.AndroidElement
 import io.appium.java_client.ios.IOSDriver
+import io.appium.java_client.ios.IOSElement
 import io.appium.java_client.remote.MobileCapabilityType
 import org.openqa.selenium.remote.DesiredCapabilities
 import java.net.URL
@@ -171,15 +172,37 @@ object SuiteSetup {
             if (appFile.isNullOrBlank())
                 appFile = "COMPLETE-PATH-TO/AppiumApp.app"
 
-            capabilities.setCapability("noReset", true)
-            capabilities.setCapability("waitForQuiescence", false)
-            capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS")
-            capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest")
-            capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, platformVersion)
-            capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceName)
-            capabilities.setCapability(MobileCapabilityType.APP, appFile)
+            if (!browserstackUser.isNullOrBlank() && !browserstackKey.isNullOrBlank()) {
 
-            driver = IOSDriver<MobileElement>(URL(APPIUM_URL), capabilities)
+                capabilities.setCapability("ignoreHiddenApiPolicyError", true)
+                capabilities.setCapability("noReset", true)
+                capabilities.setCapability("waitForQuiescence", false)
+                capabilities.setCapability("allowTestPackages", true)
+
+                capabilities.setCapability("browserstack.user", browserstackUser)
+                capabilities.setCapability("browserstack.key", browserstackKey)
+                capabilities.setCapability("app", appFile)
+                capabilities.setCapability("device", deviceName);
+                capabilities.setCapability("os_version", platformVersion);
+                capabilities.setCapability("project", "Beagle Appium tests")
+                capabilities.setCapability("build", "iOS")
+                capabilities.setCapability("name", "Beagle Appium tests on iOS")
+                capabilities.setCapability("browserstack.networkLogs", true)
+
+                println("#### Using BrowserStack on iOS... ")
+                driver = IOSDriver<MobileElement>(URL("http://hub-cloud.browserstack.com/wd/hub"), capabilities)
+
+            } else {// device is running locally
+                capabilities.setCapability("noReset", true)
+                capabilities.setCapability("waitForQuiescence", false)
+                capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS")
+                capabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, "XCUITest")
+                capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, platformVersion)
+                capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceName)
+                capabilities.setCapability(MobileCapabilityType.APP, appFile)
+
+                driver = IOSDriver<MobileElement>(URL(APPIUM_URL), capabilities)
+            }
         }
     }
 
