@@ -26,6 +26,7 @@ extension TextInput: ServerDrivenComponent {
         textInputView.styleId = styleId
         setupExpressions(toView: textInputView, renderer: renderer)
         textInputView.beagleFormElement = self
+        textInputView.returnKeyType = .done
         
         return textInputView
     }
